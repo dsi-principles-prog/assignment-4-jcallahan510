@@ -3,6 +3,15 @@ title: "assign4"
 output: html_notebook
 ---
 
+#Import
+```{r import}
+library(tidyverse)
+library(lubridate)
+library(stringr)
+library(glue)
+library(RVerbalExpressions)
+```
+
 
 For the regular expression exercises, try writing first using regular expressions directly, then try using rverbalexpressions. Provide the code for both. 
 
@@ -11,24 +20,116 @@ For the regular expression exercises, try writing first using regular expression
 ## R4DS 16.4.5
 
 Create a vector of dates giving the first day of every month in the current year. 
+```{r first of the month}
+first_day_of_months <- floor_date(today(), unit = "year") + months(0:11)
+first_day_of_months
+
+```
+
 
 Write a function that given your birthday (as a date), returns how old you are in years.
+```{r age}
+age <- function(x) {
+  as.period(today() - (ymd(x))) %/% years(1)
+}
 
-Write a function that given your birthday, returns the day of the week you were born on. 
+age(ymd("1989-12-01"))
+```
+
+
+Write a function that given your birthday, returns the day of the week you were born on.
+```{r day of week DOB}
+MTW_dob <- function(x){
+  wday(ymd(x), label = TRUE)
+}
+
+MTW_dob("1989-12-01")
+```
+
 
 ## R4DS 14.3.2.1
 
 Given the corpus of common words in stringr::words, create regular expressions that find all words that have seven letters or more. (Since this list is long, you might want to use the match argument to str_view() to show only the matching or non-matching words.)
+```{r seven letter words}
+#regular expression
+words <- stringr::words
+
+str_view(words, ".......", match = TRUE)
+
+#verbal expression
+seven_letter_words <- rx() %>% 
+  rx_start_of_line() %>%
+  rx_word_char() %>%
+  rx_repeat_previous(7) %>%
+  rx_anything() %>% 
+  print()
+  
+str_view(words, seven_letter_words, match = TRUE)
+```
+
 
 ## R4DS 14.3.3.1
 
 Use str_detect to find all words that:
 
 That only contain consonants. (Hint: thinking about matching “not”-vowels.)
+```{r no vowels}
+#regular expression
+words[str_detect(words, "^[^aeiou]+$")]
+
+#verbal expression
+all_consonants <- rx() %>% 
+  rx_start_of_line() %>% 
+  rx_anything_but("aeiou") %>% 
+  rx_end_of_line()
+
+words[str_detect(words, all_consonants)]
+
+```
+
 
 Empirically verify the rule “i before e except after c”.
+```{r}
+#regular expression
+words[str_detect(words, "[^c]ei")]
+
+#verbal expression
+ei <- rx() %>% 
+  rx_start_of_line() %>% 
+  rx_anything() %>% 
+  rx_anything_but("c") %>% 
+  rx_find("ei")
+
+words[str_detect(words, ei)]
+
+#4 words from the set break the rule
+```
+
 
 Create a regular expression that will match telephone numbers as commonly written in the US. Split this up into multiple expressions as needed.
+```{r}
+#regular expression
+grepl("^\\d{3}[-\\.]\\d{3}[-\\.]\\d{4}$", "217-377-2867")
+
+#verbal expression
+telrx <- rx() %>% 
+  rx_start_of_line() %>% 
+  rx_digit() %>% 
+  rx_repeat_previous(3) %>% 
+  rx_any_of("-.") %>% 
+  rx_digit() %>% 
+  rx_repeat_previous(3) %>% 
+  rx_any_of("-.") %>% 
+  rx_digit() %>% 
+  rx_repeat_previous(4) %>% 
+  rx_end_of_line()
+
+grepl(telrx, "217-377-2867")
+
+```
+
+
+
 
 # Part 2
 
