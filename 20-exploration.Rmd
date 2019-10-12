@@ -6,11 +6,73 @@ output: html_document
 # 2 cont. check the data
 
 There are no identifiers for players in the "pitchers" table.  Joining "pitchers" with the "atbats" data which has player ID's, then joining the "player_names" table which links ID's to names:
-```{r}
+```{r joins}
 IDpitches <- pitches %>% 
   full_join(atbats, by = "ab_id") %>% 
   full_join(player_names, by = c("pitcher_id" = "id")) %>% 
-  full_join(player_names, by = c("batter_id" = "id"))
+  full_join(player_names, by = c("batter_id" = "id")) %>% 
+  full_join(games, by = "g_id")
 
 head(IDpitches)
 ```
+
+
+Exmaining the data:
+```{r examine}
+str(IDpitches)
+summary(IDpitches)
+```
+The structure of the columns looks good, but there is a lot of dirty data.  I don't think anyone threw a pitch 33 mph in a game, and I'm certain the range of vertical break from -70 to 33 is unrealistic.  Also, the data is littered with NA's
+
+
+First, removing the NA's:
+```{r remove NA}
+IDpitchesC <- IDpitches %>% 
+  filter(!is.na(start_speed), !is.na(spin_rate), !is.na(pfx_x), !is.na(pfx_z), !is.na(code))
+
+summary(IDpitchesC)
+```
+This has removed all the NA's from the columns of interest.
+
+
+Let's look at the results of the pitches:
+```{r pitch results tabyl}
+tabyl(IDpitchesC$code)
+```
+We only care about competitive pitches, so let's remove any intentional ball ("I") and pitchout ("P", "Q", "R")
+```{r filtering pitches}
+IDpitchesC <- IDpitchesC %>% 
+  filter(code != c("I", "P", "Q", "R"))
+```
+
+
+Let's check the bounds of a few columns:
+```{r assert bounds}
+IDpitchesC %>% 
+  assert(within_bounds(50, 110), start_speed) %>%
+  assert(within_bounds(800, 3600), spin_rate) %>%
+  assert(within_bounds(-18, 18), pfx_x) %>%
+  assert(within_bounds(-18, 18), pfx_z)
+```
+There are still pitches with measurements that must be innacurate.
+
+
+Removing bad readings for certain columns:
+```{r filter out bad reads}
+IDpitchesC <- IDpitchesC %>% 
+  filter(start_speed >= 60, spin_rate >= 800, spin_rate <= 3600, pfx_x >= -18, pfx_x <= 18, pfx_z >= -18, pfx_z <= 18)
+```
+This dataframe passes the assertr tests above.
+
+
+The data looks good, let's remove unnecessary columns and rename some of them:
+```{r select}
+IDpitchesC <- IDpitchesC %>% 
+  select(date, p_last = last_name.x, p_first = first_name.x, pitch_type, velo = start_speed, spin_rate, break_x = pfx_x, break_z = pfx_z, result = code, b_last = last_name.y, b_first = first_name.y,)
+```
+
+
+
+
+
+

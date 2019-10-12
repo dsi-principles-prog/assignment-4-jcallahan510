@@ -1,0 +1,68 @@
+---
+title: "30-feature-engineering"
+output: html_document
+---
+# 4. Using best practices, write four functions which add engineered features to the dataset, including a description and rationale. Include a test to determine whether the features are working as intended. 
+
+##Finding the standard score for velo, spin_rate, break_x, & break_z for each pitch.
+```{r}
+scale <- function(x) (x - mean(x))/ sd(x)
+
+calc_by_pitch_type <- function(df, vars) {
+  df %>% 
+    group_by(pitch_type) %>% 
+    mutate_at(vars, list(std_type = scale)) %>% 
+    ungroup()
+}
+
+IDpitchesLite %>% 
+  calc_by_pitch_type(c("velo", "spin_rate", "break_x", "break_z"))
+```
+
+
+##Creating columns for the avergae velo, spin_rate, break_x, & break_z of each pitch type by pitchers of that hand:
+```{r}
+scale2 <- function(x) (mean(x))
+
+avg_by_pitch_type_hand <- function(df, vars) {
+  df %>% 
+    group_by(pitch_type, p_throws) %>% 
+    mutate_at(vars, list(avg = scale2)) %>% 
+    ungroup()
+}
+
+IDpitchesLite %>% 
+  avg_by_pitch_type_hand(c("velo", "spin_rate", "break_x", "break_z"))
+```
+
+##Creating columns for the maximum velo, spin_rate, break_x, & break_z of each pitch type by an individual pitcher:
+```{r}
+scale3 <- function(x) (max(x))
+
+max_by_pitch_type_pitcher <- function(df, vars) {
+  df %>% 
+    group_by(pitch_type, pitcher_id) %>% 
+    mutate_at(vars, list(max = scale3)) %>% 
+    ungroup()
+}
+
+IDpitchesLite %>% 
+  max_by_pitch_type_pitcher(c("velo", "spin_rate", "break_x", "break_z"))
+```
+
+
+##Creating columns for the minimum velo, spin_rate, break_x, & break_z of each pitch type by an individual pitcher:
+```{r}
+scale4 <- function(x) (min(x))
+
+min_by_pitch_type_pitcher <- function(df, vars) {
+  df %>% 
+    group_by(pitch_type, pitcher_id) %>% 
+    mutate_at(vars, list(min = scale4)) %>% 
+    ungroup()
+}
+
+IDpitchesLite %>% 
+  min_by_pitch_type_pitcher(c("velo", "spin_rate", "break_x", "break_z"))
+```
+

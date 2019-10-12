@@ -14,6 +14,7 @@ Running in the necessary libraries:
 ```{r libararies}
 library(tidyverse)
 library(janitor)
+library(dplyr)
 library(assertr)
 library(ggplot2)
 library(readr)
@@ -25,20 +26,10 @@ Reading in the data from the csv's:
 pitches <- read_csv("mlb-pitch-data-20152018/pitches.csv")
 atbats <- read_csv("mlb-pitch-data-20152018/atbats.csv")
 player_names <- read_csv("mlb-pitch-data-20152018/player_names.csv")
+games <- read_csv("mlb-pitch-data-20152018/games.csv")
 ```
 
 
 
 
-
-
-
-```{r}
-IDpitches <- pitches %>% 
-  full_join(atbats, by = "ab_id") %>% 
-  full_join(player_names, by = c("pitcher_id" = "id")) %>% 
-  full_join(player_names, by = c("batter_id" = "id"))
-
-head(IDpitches)
-```
-
+**Please replace grade from previous homework
