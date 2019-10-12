@@ -1,0 +1,16 @@
+---
+title: "20-exploration"
+output: html_document
+---
+
+# 2 cont. check the data
+
+There are no identifiers for players in the "pitchers" table.  Joining "pitchers" with the "atbats" data which has player ID's, then joining the "player_names" table which links ID's to names:
+```{r}
+IDpitches <- pitches %>% 
+  full_join(atbats, by = "ab_id") %>% 
+  full_join(player_names, by = c("pitcher_id" = "id")) %>% 
+  full_join(player_names, by = c("batter_id" = "id"))
+
+head(IDpitches)
+```

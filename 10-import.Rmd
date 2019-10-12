@@ -1,0 +1,44 @@
+---
+title: "10-import"
+output: html_document
+---
+
+
+# 1. Describe the data and the problem
+
+In Kaggle, I found a data set the contains every data from pitch thrown in a Major League Baseball game from 2015-2018.  Each pitch has a measurement for velocity, horizontal break, vertical break, the pitch result, and much more. I would like to analyze what elements of a pitch produce what results, with what frequency.
+
+# 2. Read in and check data
+
+Running in the necessary libraries:
+```{r libararies}
+library(tidyverse)
+library(janitor)
+library(assertr)
+library(ggplot2)
+library(readr)
+```
+
+
+Reading in the data from the csv's:
+```{r import}
+pitches <- read_csv("mlb-pitch-data-20152018/pitches.csv")
+atbats <- read_csv("mlb-pitch-data-20152018/atbats.csv")
+player_names <- read_csv("mlb-pitch-data-20152018/player_names.csv")
+```
+
+
+
+
+
+
+
+```{r}
+IDpitches <- pitches %>% 
+  full_join(atbats, by = "ab_id") %>% 
+  full_join(player_names, by = c("pitcher_id" = "id")) %>% 
+  full_join(player_names, by = c("batter_id" = "id"))
+
+head(IDpitches)
+```
+
