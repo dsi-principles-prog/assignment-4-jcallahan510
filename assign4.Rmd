@@ -89,7 +89,7 @@ words[str_detect(words, all_consonants)]
 
 
 Empirically verify the rule “i before e except after c”.
-```{r}
+```{r "i before e..."}
 #regular expression
 words[str_detect(words, "[^c]ei")]
 
@@ -107,7 +107,7 @@ words[str_detect(words, ei)]
 
 
 Create a regular expression that will match telephone numbers as commonly written in the US. Split this up into multiple expressions as needed.
-```{r}
+```{r phone nos}
 #regular expression
 grepl("^\\d{3}[-\\.]\\d{3}[-\\.]\\d{4}$", "217-377-2867")
 

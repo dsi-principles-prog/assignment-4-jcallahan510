@@ -4,14 +4,14 @@ output: html_document
 ---
 # 4. Using best practices, write four functions which add engineered features to the dataset, including a description and rationale. Include a test to determine whether the features are working as intended. 
 
-##Finding the standard score for velo, spin_rate, break_x, & break_z for each pitch.
-```{r}
-scale <- function(x) (x - mean(x))/ sd(x)
+##In order to understand each pitch better, let's provide some context, by finding the standard score for velo, spin_rate, break_x, & break_z for each pitch.
+```{r standardized measures}
+scale <- function(x) round((x - mean(x))/ sd(x), digits = 3)
 
 calc_by_pitch_type <- function(df, vars) {
   df %>% 
-    group_by(pitch_type) %>% 
-    mutate_at(vars, list(std_type = scale)) %>% 
+    group_by(pitch_type, p_throws) %>% 
+    mutate_at(vars, list(std = scale)) %>% 
     ungroup()
 }
 
@@ -21,8 +21,8 @@ IDpitchesLite %>%
 
 
 ##Creating columns for the avergae velo, spin_rate, break_x, & break_z of each pitch type by pitchers of that hand:
-```{r}
-scale2 <- function(x) (mean(x))
+```{r avg by L/R}
+scale2 <- function(x) round((mean(x)), digits = 3)
 
 avg_by_pitch_type_hand <- function(df, vars) {
   df %>% 
@@ -36,8 +36,8 @@ IDpitchesLite %>%
 ```
 
 ##Creating columns for the maximum velo, spin_rate, break_x, & break_z of each pitch type by an individual pitcher:
-```{r}
-scale3 <- function(x) (max(x))
+```{r personal max}
+scale3 <- function(x) round((max(x)), digits = 3)
 
 max_by_pitch_type_pitcher <- function(df, vars) {
   df %>% 
@@ -51,18 +51,18 @@ IDpitchesLite %>%
 ```
 
 
-##Creating columns for the minimum velo, spin_rate, break_x, & break_z of each pitch type by an individual pitcher:
-```{r}
-scale4 <- function(x) (min(x))
+##There still seems to be a lot of funny looking data.  Let's standardize our pitch measures relative to that pitcher's personal distribution. This will make it easier to identify outliers as possible bad readings:
+```{r standarize by pitcher pitch type}
+scale4 <- function(x) round((x - mean(x))/ sd(x), digits = 3)
 
-min_by_pitch_type_pitcher <- function(df, vars) {
+calc_by_pitcher_pitch_type <- function(df, vars) {
   df %>% 
     group_by(pitch_type, pitcher_id) %>% 
-    mutate_at(vars, list(min = scale4)) %>% 
+    mutate_at(vars, list(pitcher_std = scale4)) %>% 
     ungroup()
 }
 
 IDpitchesLite %>% 
-  min_by_pitch_type_pitcher(c("velo", "spin_rate", "break_x", "break_z"))
+  calc_by_pitcher_pitch_type(c("velo", "spin_rate", "break_x", "break_z"))
 ```
 
